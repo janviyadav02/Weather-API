@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card">
+        <div class="search">
+            <input type="text" placeholder="Enter city name" spellcheck="false">
+            <button><img src="image/search-removebg-preview.png" alt="Search"></button>
+        </div>
+        <!-- Error message container -->
+        <div>
+            <div class="error" style="display: none;">
+                <p>Invalid city name</p>
+            </div>
+        </div>
+        <!-- Weather display container -->
+        <div class="weather" style="display: block;">
+            <img src="image/download-removebg-preview.png" class="weather-icon" alt="Weather icon">
+            <h1 class="temp">22°C</h1>
+            <h2 class="city">New York</h2>
+            <div class="details">
+                <div class="col">
+                    <img src="image/humidity.png" alt="Humidity icon">
+                    <div>
+                        <p class="humidity">50%</p>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <img src="image/wind.png" alt="Wind icon">
+                    <div>
+                        <p class="wind">50%</p>
+                        <p>Wind Speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apikey = "ebae2624dae2bbeb3d2c6f9e43edaffc";
+        const apiurl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+        const serchbox = document.querySelector(".search input");
+        const serchbtn = document.querySelector(".search button");
+        const weathericon = document.querySelector(".weather-icon");
+
+        async function checkweather(city) {
+            // Clear previous error messages
+            document.querySelector(".error").style.display = "none";
+            document.querySelector(".weather").style.display = "none";
+
+            const response = await fetch(apiurl + city + `&appid=${apikey}`);
+            
+            if (response.status === 404) {
+                // Show error if city not found
+                document.querySelector(".error").style.display = "block";
+            } else {
+                // Process the valid response
+                const data = await response.json();
+
+                document.querySelector(".city").innerHTML = data.name;
+                document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
+                document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+
+                // Set the correct weather icon based on the condition
+                if (data.weather[0].main === "Clouds") {
+                    weathericon.src = "image/cloud.png";
+                } else if (data.weather[0].main === "Clear") {
+                    weathericon.src = "image/clear.png";
+                } else if (data.weather[0].main === "Rain") {
+                    weathericon.src = "image/rain.png";
+                } else if (data.weather[0].main === "Drizzle") {
+                    weathericon.src = "image/drizzle.png";
+                } else if (data.weather[0].main === "Mist") {
+                    weathericon.src = "image/mist.png";
+                }
+
+                // Show weather data and hide error
+                document.querySelector(".weather").style.display = "block";
+            }
+        }
+
+        serchbtn.addEventListener("click", () => {
+            const city = serchbox.value.trim();
+            if (city) {
+                checkweather(city);
+            } else {
+                // Handle case where search field is empty
+                document.querySelector(".error").style.display = "block";
+                document.querySelector(".error p").innerText = "Please enter a city name.";
+            }
+        });
+    </script>
+</body>
+</html>
